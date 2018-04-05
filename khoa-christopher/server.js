@@ -2,18 +2,21 @@
 
 const fs = require('fs');
 const express = require('express');
-
+const pg = require('pg');
 const PORT = process.env.PORT || 3000;
 const app = express();
 
+
 // Windows and Linux users: You should have retained the user/password from the pre-work for this course.
 // Your OS may require that your conString is composed of additional information including user and password.
-// const conString = 'postgres://USER:PASSWORD@HOST:PORT/DBNAME';
+
+// Windows
+const conString = 'postgres://postgres:3874@localhost:5432/kilovolt';
 
 // Mac:
-// const conString = 'postgres://localhost:5432/DBNAME';
+// const conString = 'postgres://localhost:5432/kilovolt';
 
-const client = new pg.Client();
+const client = new pg.Client(conString);
 
 // REVIEW: Use the client object to connect to our DB.
 client.connect();
@@ -21,9 +24,8 @@ client.connect();
 
 // REVIEW: Install the middleware plugins so that our app can parse the request body
 app.use(express.json());
-app.use(express.urlencoded());
+app.use(express.urlencoded({extended: true}));
 app.use(express.static('./public'));
-
 
 // REVIEW: Routes for requesting HTML resources
 app.get('/new', (request, response) => {
@@ -37,7 +39,7 @@ app.get('/new', (request, response) => {
 app.get('/articles', (request, response) => {
   // COMMENT: What number(s) of the full-stack-diagram.png image correspond to the following line of code? Which method of article.js is interacting with this particular piece of `server.js`? What part of CRUD is being enacted/managed by this particular piece of code?
   // PUT YOUR RESPONSE HERE
-  client.query('')
+  client.query(`SELECT * FROM articles;`)
     .then(function(result) {
       response.send(result.rows);
     })
@@ -126,6 +128,7 @@ app.listen(PORT, () => {
 //////// ** DATABASE LOADER ** ////////
 ////////////////////////////////////////
 function loadArticles() {
+  console.log('excuting load articles');
   // COMMENT: What number(s) of the full-stack-diagram.png image correspond to the following line of code? Which method of article.js is interacting with this particular piece of `server.js`? What part of CRUD is being enacted/managed by this particular piece of code?
   // PUT YOUR RESPONSE HERE
   client.query('SELECT COUNT(*) FROM articles')
@@ -134,6 +137,7 @@ function loadArticles() {
     // If there is nothing on the table, then result.rows[0] will be undefined, which will make count undefined. parseInt(undefined) returns NaN. !NaN evaluates to true.
     // Therefore, if there is nothing on the table, the conditional expression will evaluate to true and enter into the code block.
       if(!parseInt(result.rows[0].count)) {
+        console.log('no rows found, executing load');
         fs.readFile('./public/data/hackerIpsum.json', 'utf8', (err, fd) => {
           JSON.parse(fd).forEach(ele => {
             client.query(`
@@ -145,6 +149,7 @@ function loadArticles() {
             )
           })
         })
+        console.log('load complete');
       }
     })
 }
@@ -166,6 +171,7 @@ function loadDB() {
       loadArticles();
     })
     .catch(err => {
+      console.log('something went wrong');
       console.error(err);
     });
 }
