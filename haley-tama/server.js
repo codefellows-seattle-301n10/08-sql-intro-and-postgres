@@ -78,7 +78,7 @@ app.put('/articles/:id', (request, response) => {
   // COMMENTED: What number(s) of the full-stack-diagram.png image correspond to the following line of code? Which method of article.js is interacting with this particular piece of `server.js`? What part of CRUD is being enacted/managed by this particular piece of code?
   // Request (#2) > Query (#3) > Result (#4) > Response (#5).This is using the updateRecord() method in article.js. CRUD = update.
   client.query(
-    ` SELECT * FROM artcles WHERE article_id=$1`, []
+    ` SELECT * FROM articles WHERE article_id=$1`, []
   )
     .then(() => {
       response.send('update complete')
