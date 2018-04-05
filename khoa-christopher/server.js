@@ -11,10 +11,10 @@ const app = express();
 // Your OS may require that your conString is composed of additional information including user and password.
 
 // Windows
-const conString = 'postgres://postgres:3874@localhost:5432/kilovolt';
+// const conString = 'postgres://postgres:3874@localhost:5432/kilovolt';
 
 // Mac:
-// const conString = 'postgres://localhost:5432/kilovolt';
+const conString = 'postgres://localhost:5432/kilovolt';
 
 const client = new pg.Client(conString);
 
