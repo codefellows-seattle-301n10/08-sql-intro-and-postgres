@@ -28,7 +28,7 @@ app.use(express.static('./public'));
 // REVIEWED: Routes for requesting HTML resources
 app.get('/new', (request, response) => {
   // COMMENT: What number(s) of the full-stack-diagram.png image correspond to the following line of code? Which method of article.js, if any, is interacting with this particular piece of `server.js`? What part of CRUD, if any, is being enacted/managed by this particular piece of code?
-  // The app.get is 1-2, and response.sendFile is 2-5. We believe this is interacting with Article.prototype.updateRecord method as this function updates the articles. 
+  // The app.get is 1-2, and response.sendFile is 2-5. We believe this is interacting with Article.prototype.updateRecord method as this function updates the articles.
   //NOTE TO SELF: Is this creating or updated? Could be either updateRecord OR insertRecord.
   response.sendFile('new.html', {root: './public'});
 });
@@ -38,7 +38,7 @@ app.get('/new', (request, response) => {
 app.get('/articles', (request, response) => {
   // COMMENT: What number(s) of the full-stack-diagram.png image correspond to the following line of code? Which method of article.js is interacting with this particular piece of `server.js`? What part of CRUD is being enacted/managed by this particular piece of code?
   //This is 2 and 3 of the diagram. This is interacting with Article.prototype.toHtml because the articles are being displayed. This is the "CREATE" part of CRUD
-  client.query('')
+  client.query(`SELECT * FROM articles;`)
     .then(function(result) {
       response.send(result.rows);
     })
@@ -75,8 +75,9 @@ app.post('/articles', (request, response) => {
 app.put('/articles/:id', (request, response) => {
   // COMMENT: What number(s) of the full-stack-diagram.png image correspond to the following line of code? Which method of article.js is interacting with this particular piece of `server.js`? What part of CRUD is being enacted/managed by this particular piece of code?
   //This is part 4 and 5 of the diagram. This corresponds to Article.prototype.updateRecord. This is the UPDATE part of CRUD.
-  client.query(
-    ` `, []
+  client.query(`
+  UPDATE articles
+    SET author='Flippity Jippit' WHERE author='Virginia Sawayn;`,[]
   )
     .then(() => {
       response.send('update complete')
@@ -105,7 +106,12 @@ app.delete('/articles', (request, response) => {
   // COMMENT: What number(s) of the full-stack-diagram.png image correspond to the following line of code? Which method of article.js is interacting with this particular piece of `server.js`? What part of CRUD is being enacted/managed by this particular piece of code?
   // This corresponds to 3 on the diagram. This interacts with Article.truncateTable. This is the DELETE part of CRUD.
   client.query(
-    ''
+    `SELECT * FROM articles;`, [request.body.title,
+      request.body.author,
+      request.body.authorUrl,
+      request.body.category,
+      request.body.publishedOn,
+      request.body.body]
   )
     .then(() => {
       response.send('Delete complete')
@@ -127,8 +133,8 @@ app.listen(PORT, () => {
 //////// ** DATABASE LOADER ** ////////
 ////////////////////////////////////////
 function loadArticles() {
-  // COMMENT: What number(s) of the full-stack-diagram.png image correspond to the following line of code? Which method of article.js is interacting with this particular piece of `server.js`? What part of CRUD is being enacted/managed by this particular piece of code?
-  // This is 3, 4, and 5 on the diagram. This is interacting with Article.fetchAll. This is the READ part of CRUD.  
+  // COMMENTED: What number(s) of the full-stack-diagram.png image correspond to the following line of code? Which method of article.js is interacting with this particular piece of `server.js`? What part of CRUD is being enacted/managed by this particular piece of code?
+  // This is 3, 4, and 5 on the diagram. This is interacting with Article.fetchAll. This is the READ part of CRUD.
   client.query('SELECT COUNT(*) FROM articles')
     .then(result => {
     // REVIEWED: result.rows is an array of objects that PostgreSQL returns as a response to a query.
