@@ -1,11 +1,14 @@
+import { lchmod } from 'fs';
+
 'use strict';
 
 const fs = require('fs');
 const express = require('express');
+const pg = require('pg');
 
 const PORT = process.env.PORT || 3000;
 const app = express();
-const pg = require('pg');
+
 
 
 // Windows and Linux users: You should have retained the user/password from the pre-work for this course.
@@ -17,20 +20,25 @@ const conString = 'postgres://localhost:5432/kilovolt';
 
 const client = new pg.Client(conString);
 
-// REVIEW: Use the client object to connect to our DB.
+// REVIEWED: Use the client object to connect to our DB.
 client.connect();
 
 
-// REVIEW: Install the middleware plugins so that our app can parse the request body
+// REVIEWED: Install the middleware plugins so that our app can parse the request body
 app.use(express.json());
-app.use(express.urlencoded());
+app.use(express.urlencoded({extended:true}));
 app.use(express.static('./public'));
 
 
-// REVIEW: Routes for requesting HTML resources
+// REVIEWED: Routes for requesting HTML resources
 app.get('/new', (request, response) => {
   // COMMENTED: What number(s) of the full-stack-diagram.png image correspond to the following line of code? Which method of article.js, if any, is interacting with this particular piece of `server.js`? What part of CRUD, if any, is being enacted/managed by this particular piece of code?
+  // SOLUTION:
+  // Number: 2 & 5
+  // Method: Article.insertRecord
+  // CRUD: Create
   // #3 - fetchAll because thats where it gets all the data and pushes it into server.js. 
+  // its a request navigate to the route and repsonse from the server.
   response.sendFile('new.html', {root: './public'});
 });
 
@@ -39,8 +47,12 @@ app.get('/new', (request, response) => {
 // REVIEW: Routes for making API calls to use CRUD Operations on our database
 app.get('/articles', (request, response) => {
   // COMMENTED: What number(s) of the full-stack-diagram.png image correspond to the following line of code? Which method of article.js is interacting with this particular piece of `server.js`? What part of CRUD is being enacted/managed by this particular piece of code?
-  // #3 - it is retreiving the information 
-  client.query('SELECT * FROM articles;')
+  // SOLUTION:
+  // Number: 2-5
+  // Method: Article.fetchAll
+  // CRUD: Read and Update
+
+  client.query(`SELECT * FROM articles;`)
     .then(function(result) {
       response.send(result.rows);
     })
@@ -50,8 +62,11 @@ app.get('/articles', (request, response) => {
 });
 
 app.post('/articles', (request, response) => {
-  // COMMENT: What number(s) of the full-stack-diagram.png image correspond to the following line of code? Which method of article.js is interacting with this particular piece of `server.js`? What part of CRUD is being enacted/managed by this particular piece of code?
-  // #3 
+  // COMMENTED: What number(s) of the full-stack-diagram.png image correspond to the following line of code? Which method of article.js is interacting with this particular piece of `server.js`? What part of CRUD is being enacted/managed by this particular piece of code?
+  // SOLUTION:
+  // Number: 2-4
+  // Method: Article.loadAll
+  // CRUD: Create, Read, Update
   client.query(
     `INSERT INTO
     articles(title, author, "authorUrl", category, "publishedOn", body)
@@ -76,13 +91,26 @@ app.post('/articles', (request, response) => {
 
 
 app.put('/articles/:id', (request, response) => {
-  // COMMENT: What number(s) of the full-stack-diagram.png image correspond to the following line of code? Which method of article.js is interacting with this particular piece of `server.js`? What part of CRUD is being enacted/managed by this particular piece of code?
-  // PUT YOUR RESPONSE HERE
+  // COMMENTED: What number(s) of the full-stack-diagram.png image correspond to the following line of code? Which method of article.js is interacting with this particular piece of `server.js`? What part of CRUD is being enacted/managed by this particular piece of code?
+  // SOLUTION:
+  // Number: 3 & 4 
+  // Method: Article.updateRecord
+  // CRUD: Update
   client.query(
-    `UPDATE articles 
-     SET author = 'test'
-     ;`
-     , []
+    `UPDATE articles
+    SET
+    title=$1, author=$2, "authorUrl"=$3, category=$4, "publishedOn"=$5, body=$6
+    WHERE article_id=$7;
+    `,
+    [
+      request.body.title,
+      request.body.author,
+      request.body.authorUrl,
+      request.body.category,
+      request.body.publishedOn,
+      request.body.body,
+      request.params.id
+    ]
   )
     .then(() => {
       response.send('update complete')
@@ -90,11 +118,14 @@ app.put('/articles/:id', (request, response) => {
     .catch(err => {
       console.error(err);
     });
-});
+}); 
 
 app.delete('/articles/:id', (request, response) => {
-  // COMMENT: What number(s) of the full-stack-diagram.png image correspond to the following line of code? Which method of article.js is interacting with this particular piece of `server.js`? What part of CRUD is being enacted/managed by this particular piece of code?
-  // PUT YOUR RESPONSE HERE
+  // COMMENTED: What number(s) of the full-stack-diagram.png image correspond to the following line of code? Which method of article.js is interacting with this particular piece of `server.js`? What part of CRUD is being enacted/managed by this particular piece of code?
+  // SOLUTION: 
+  // Number: 2 & 3
+  // Method: Article.deleteRecord 
+  // CRUD: Delete
   client.query(
     `DELETE FROM articles WHERE article_id=$1;`,
     [request.params.id]
@@ -108,10 +139,13 @@ app.delete('/articles/:id', (request, response) => {
 });
 
 app.delete('/articles', (request, response) => {
-  // COMMENT: What number(s) of the full-stack-diagram.png image correspond to the following line of code? Which method of article.js is interacting with this particular piece of `server.js`? What part of CRUD is being enacted/managed by this particular piece of code?
-  // PUT YOUR RESPONSE HERE
+  // COMMENTED: What number(s) of the full-stack-diagram.png image correspond to the following line of code? Which method of article.js is interacting with this particular piece of `server.js`? What part of CRUD is being enacted/managed by this particular piece of code?
+  // SOLUTION:
+  // Number: 3 & 4
+  // Method: Article.truncateTable
+  // CRUD: Delete
   client.query(
-    ''
+    'TRUNCATE TABLE articles;'
   )
     .then(() => {
       response.send('Delete complete')
@@ -121,8 +155,8 @@ app.delete('/articles', (request, response) => {
     });
 });
 
-// COMMENT: What is this function invocation doing?
-// PUT YOUR RESPONSE HERE
+// COMMENTED: What is this function invocation doing?
+// It is calling the function loadDB and filling the table in the DOM with the info/data of the data base
 loadDB();
 
 app.listen(PORT, () => {
@@ -133,11 +167,14 @@ app.listen(PORT, () => {
 //////// ** DATABASE LOADER ** ////////
 ////////////////////////////////////////
 function loadArticles() {
-  // COMMENT: What number(s) of the full-stack-diagram.png image correspond to the following line of code? Which method of article.js is interacting with this particular piece of `server.js`? What part of CRUD is being enacted/managed by this particular piece of code?
-  // PUT YOUR RESPONSE HERE
+  // COMMENTED: What number(s) of the full-stack-diagram.png image correspond to the following line of code? Which method of article.js is interacting with this particular piece of `server.js`? What part of CRUD is being enacted/managed by this particular piece of code?
+  // SOLUTION:
+  // Number: 1-4
+  // Method: toHTML 
+  // CRUD: Read and Update
   client.query('SELECT COUNT(*) FROM articles')
     .then(result => {
-    // REVIEW: result.rows is an array of objects that PostgreSQL returns as a response to a query.
+    // REVIEWED: result.rows is an array of objects that PostgreSQL returns as a response to a query.
     // If there is nothing on the table, then result.rows[0] will be undefined, which will make count undefined. parseInt(undefined) returns NaN. !NaN evaluates to true.
     // Therefore, if there is nothing on the table, the conditional expression will evaluate to true and enter into the code block.
       if(!parseInt(result.rows[0].count)) {
@@ -157,8 +194,11 @@ function loadArticles() {
 }
 
 function loadDB() {
-  // COMMENT: What number(s) of the full-stack-diagram.png image correspond to the following line of code? Which method of article.js is interacting with this particular piece of `server.js`? What part of CRUD is being enacted/managed by this particular piece of code?
-  // PUT YOUR RESPONSE HERE
+  // COMMENTED: What number(s) of the full-stack-diagram.png image correspond to the following line of code? Which method of article.js is interacting with this particular piece of `server.js`? What part of CRUD is being enacted/managed by this particular piece of code?
+  // SOLUTION:
+  // Number: 3
+  // Method: fetchAll
+  // CRUD: Read
   client.query(`
     CREATE TABLE IF NOT EXISTS articles (
       article_id SERIAL PRIMARY KEY,
