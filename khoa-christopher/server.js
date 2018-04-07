@@ -86,7 +86,7 @@ app.put('/articles/:id', (request, response) => {
       category=$4,
       "publishedOn"=$5,
       body=$6
-    WHERE id=$7;`,
+    WHERE article_id=$7;`,
     [
       request.body.title,
       request.body.author,
