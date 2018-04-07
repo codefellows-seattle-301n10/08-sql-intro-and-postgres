@@ -1,19 +1,23 @@
 # Project Name
 
-**Author**: Khoa Huynh and Christpher Chew
+**Author**: Khoa Huynh and Christopher Chew
 **Version**: 1.0.0 
 
 ## Overview
-<!-- Provide a high level overview of what this application is and why you are building it, beyond the fact that it's an assignment for a Code Fellows 301 class. (i.e. What's your problem domain?) -->
+This application is a blog that is created using data from a table in a database. New articles can be created and inserted into the database using a form on the site.
 
 ## Getting Started
-<!-- What are the steps that a user must take in order to build this app on their own machine and get it running? -->
+starter-code from lab 09
 
 ## Architecture
-<!-- Provide a detailed description of the application design. What technologies (languages, libraries, etc) you're using, and any other relevant design information. -->
+HTML, CSS, Javascript, Jquery, Node.js, handlebars, PostreSQL
 
 ## Change Log
 04-04-2018 5:00pm - Created README File
+04-04-2018 8:44pm - Database has been created and Table has been filled with data
+04-06-2018 7:31pm - Added SQL statements
+4-07-2018 10:00am - Finished comments on server.js
 
 ## Credits and Collaborations
-<!-- Give credit (and a link) to other people or resources that helped you build this application. -->
+Khoa Huynh
+Christopher Chew
