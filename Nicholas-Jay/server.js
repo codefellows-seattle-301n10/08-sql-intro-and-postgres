@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 const express = require('express');
-
+const pg = require('pg');
 const PORT = process.env.PORT || 3000;
 const app = express();
 
@@ -141,7 +141,7 @@ function loadArticles() {
               articles(title, author, "authorUrl", category, "publishedOn", body)
               VALUES ($1, $2, $3, $4, $5, $6);
             `,
-              [ele.title, ele.author, ele.authorUrl, ele.category, ele.publishedOn, ele.body]
+            [ele.title, ele.author, ele.authorUrl, ele.category, ele.publishedOn, ele.body]
             )
           })
         })
@@ -151,7 +151,7 @@ function loadArticles() {
 
 function loadDB() {
   // COMMENT: What number(s) of the full-stack-diagram.png image correspond to the following line of code? Which method of article.js is interacting with this particular piece of `server.js`? What part of CRUD is being enacted/managed by this particular piece of code?
-  // PUT YOUR RESPONSE HERE
+  // The code below shows a sql statement that creates a table in the data base and I believe the number from the photo would be number 2 then to 3 and stop at point because nothing is being called back as far of what part of server.js is bing called would be line  36.
   client.query(`
     CREATE TABLE IF NOT EXISTS articles (
       article_id SERIAL PRIMARY KEY,
